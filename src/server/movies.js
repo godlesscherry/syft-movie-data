@@ -14,7 +14,6 @@ export async function getGenereAndMovies() {
     const movies = [...await getImdb(), ...await getRT()];
     const genres = movies.reduce((acc, movie) => {
         const genreField = movie.genre || movie.Genre;
-        console.log(genreField , movie.title);
         const genres = genreField?.split(",").map((genre) => genre.trim());
         genres?.forEach((genre) => {
             if (!acc[genre]) {
