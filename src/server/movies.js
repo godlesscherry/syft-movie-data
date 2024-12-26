@@ -13,8 +13,7 @@ export async function getRecentMovies() {
 }
 
 export async function getGenereAndMovies() {
-    // TODO: sort genres by the name. (Bug 2)
-    const movies = [...await getImdb(), ...await getRT()]
+    const movies = [...await getImdb(), ...await getRT()];
     const genres = movies.reduce((acc, movie) => {
         const genres = movie.genre?.split(",").map((genre) => genre.trim());
         genres?.forEach((genre) => {
@@ -24,6 +23,12 @@ export async function getGenereAndMovies() {
             acc[genre].push(movie);
         });
         return acc;
-    }, {});    
-    return Object.entries(genres).map(([genre, movies]) => ({title: genre, movies}));
+    }, {});
+
+    const sortedGenres = Object.keys(genres).sort().reduce((acc, genre) => {
+        acc[genre] = genres[genre];
+        return acc;
+    }, {});
+        
+    return Object.entries(sortedGenres).map(([genre, movies]) => ({title: genre, movies}));
 }
