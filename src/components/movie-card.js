@@ -7,6 +7,8 @@ import { addFavorite, removeFavorite, getFavorites } from "../server/movies";
 export default function MovieCard({ movie }) {
     const [imgSrc, setImgSrc] = useState(movie.poster);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [showPlot, setShowPlot] = useState(false);
+    const [hoverTimeout, setHoverTimeout] = useState(null);
 
     useEffect(() => {
         async function fetchFavorites() {
@@ -15,6 +17,14 @@ export default function MovieCard({ movie }) {
         }
         fetchFavorites();
     }, [movie.id]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const randomImage = movie.images[Math.floor(Math.random() * movie.images.length)];
+            setImgSrc(randomImage);
+        }, 5000); // Change image every 5 seconds
+        return () => clearInterval(interval);
+    }, [movie.images]);
 
     const handleImageError = () => {
         setImgSrc('/images/fallback-image.png'); // Fallback image
@@ -29,8 +39,23 @@ export default function MovieCard({ movie }) {
         setIsFavorite(!isFavorite);
     };
 
+    const handleMouseEnter = () => {
+        const timeout = setTimeout(() => setShowPlot(true), 500);
+        setHoverTimeout(timeout);
+    };
+
+    const handleMouseLeave = () => {
+        clearTimeout(hoverTimeout);
+        setShowPlot(false);
+    };
+
     return (
-        <div key={movie.id} className="p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
+        <div
+            key={movie.id}
+            className="p-4 bg-white rounded-lg shadow-md dark:bg-gray-800 relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             <Image
                 src={imgSrc}
                 alt={movie.title}
@@ -47,9 +72,11 @@ export default function MovieCard({ movie }) {
                     {isFavorite ? '★' : '☆'}
                 </button>
             </div>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-                {movie.plot}
-            </p>
+            {showPlot && (
+                <div className="absolute inset-0 bg-black bg-opacity-75 text-white p-4 flex items-center justify-center">
+                    <p className="text-center">{movie.plot}</p>
+                </div>
+            )}
         </div>        
     );
 }
