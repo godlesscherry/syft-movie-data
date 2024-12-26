@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { addFavorite, removeFavorite, getFavorites } from "../server/movies";
 
 export default function MovieCard({ movie }) {
@@ -9,6 +9,7 @@ export default function MovieCard({ movie }) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [showPlot, setShowPlot] = useState(false);
     const [hoverTimeout, setHoverTimeout] = useState(null);
+    const favoriteButtonRef = useRef(null);
 
     useEffect(() => {
         async function fetchFavorites() {
@@ -30,7 +31,8 @@ export default function MovieCard({ movie }) {
         setImgSrc('/images/fallback-image.png'); // Fallback image
     };
 
-    const toggleFavorite = async () => {
+    const toggleFavorite = async (e) => {
+        e.stopPropagation(); // Prevent the event from bubbling up to the parent
         if (isFavorite) {
             await removeFavorite(movie.id);
         } else {
@@ -64,16 +66,20 @@ export default function MovieCard({ movie }) {
                 height={450}
                 onError={handleImageError}
             />
-            <div className="mt-4 flex justify-between items-center">
+            <div className="mt-4 flex justify-between items-center relative z-10">
                 <h2 className="text-md font-semibold text-gray-800 dark:text-white">
                     {movie.title}
                 </h2>
-                <button onClick={toggleFavorite}>
+                <button
+                    ref={favoriteButtonRef}
+                    onClick={toggleFavorite}
+                    className="text-2xl" // Make the icon bigger
+                >
                     {isFavorite ? '★' : '☆'}
                 </button>
             </div>
             {showPlot && (
-                <div className="absolute inset-0 bg-black bg-opacity-75 text-white p-4 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black bg-opacity-75 text-white p-4 flex items-center justify-center z-0">
                     <p className="text-center">{movie.plot}</p>
                 </div>
             )}
