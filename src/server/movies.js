@@ -33,13 +33,13 @@ export async function getGenereAndMovies() {
 }
 
 export async function addFavorite(movie) {
-    if (!favorites.some(fav => fav.id === movie.id)) {
+    if (!favorites.some(fav => fav.title === movie.title)) {
         favorites.push(movie);
     }
 }
 
-export async function removeFavorite(movieId) {
-    favorites = favorites.filter(fav => fav.id !== movieId);
+export async function removeFavorite(movie) {
+    favorites = favorites.filter(fav => fav.title !== movie.title);
 }
 
 export async function getFavorites() {
