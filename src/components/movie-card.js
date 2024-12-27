@@ -2,22 +2,16 @@
 
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { addFavorite, removeFavorite, getFavorites } from "../server/movies";
+import { useFavorites } from "../context/FavoritesContext";
 
 export default function MovieCard({ movie }) {
+    const { favorites, toggleFavorite } = useFavorites();
     const [imgSrc, setImgSrc] = useState(movie.poster);
-    const [isFavorite, setIsFavorite] = useState(false);
     const [showPlot, setShowPlot] = useState(false);
     const [hoverTimeout, setHoverTimeout] = useState(null);
     const favoriteButtonRef = useRef(null);
 
-    useEffect(() => {
-        async function fetchFavorites() {
-            const favorites = await getFavorites();
-            setIsFavorite(favorites.some(fav => fav.id === movie.id));
-        }
-        fetchFavorites();
-    }, [movie.id]);
+    const isFavorite = favorites.some(fav => fav.title === movie.title);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -31,14 +25,9 @@ export default function MovieCard({ movie }) {
         setImgSrc('/images/fallback-image.png'); // Fallback image
     };
 
-    const toggleFavorite = async (e) => {
+    const handleToggleFavorite = (e) => {
         e.stopPropagation(); // Prevent the event from bubbling up to the parent
-        if (isFavorite) {
-            await removeFavorite(movie.id);
-        } else {
-            await addFavorite(movie);
-        }
-        setIsFavorite(!isFavorite);
+        toggleFavorite(movie);
     };
 
     const handleMouseEnter = () => {
@@ -72,7 +61,7 @@ export default function MovieCard({ movie }) {
                 </h2>
                 <button
                     ref={favoriteButtonRef}
-                    onClick={toggleFavorite}
+                    onClick={handleToggleFavorite}
                     className="text-2xl" // Make the icon bigger
                 >
                     {isFavorite ? '★' : '☆'}
@@ -83,6 +72,6 @@ export default function MovieCard({ movie }) {
                     <p className="text-center">{movie.plot}</p>
                 </div>
             )}
-        </div>        
+        </div>
     );
 }
